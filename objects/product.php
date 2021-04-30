@@ -22,20 +22,25 @@ class Product
         $this->conn = $db;
     }
     //metoda read
-    function read()
-    {
+    function read(){
+  
+        // select all query
         $query = "SELECT
-                    c.name as cetegory_name, p.id, p.name, p.description, p.price, p.category_id, p.created
-                  FROM
+                    c.name as category_name, p.id, p.name, p.description, p.price, p.category_id, p.created
+                FROM
+                    " . $this->table_name . " p
                     LEFT JOIN
                         categories c
-                            ON p.category_id = c.id
-                  ORDER BY
-                  p.created DESC";
+                            ON p.categoryId = c.id
+                ORDER BY
+                    p.created DESC";
+      
+        // prepare query statement
         $stmt = $this->conn->prepare($query);
-
+      
+        // execute query
         $stmt->execute();
-
+      
         return $stmt;
     }
     //tworzenie produktu
@@ -44,7 +49,7 @@ class Product
         $query = "INSERT INTO
             " . $this->table_name . "
             SET
-                name=:name, price=:price, description=:description, categoryId=:categoryId, created=:created";
+                name=:name, price=:price, description=:description, category_id=:category_id, created=:created";
         //przygotowanie zapytania
         $stmt = $this->conn->prepare($query);
         
@@ -66,6 +71,37 @@ class Product
             return true;
         }
         else false;
+    }
+    function readOne()
+    {
+        //zapytanie o pojedyńczy rekord
+        $query = "SELECT
+                    c.name as category_name, p.id, p.name, p.description, p.price, p.category_id, p.created
+                FROM  
+                 " .$this->table_name . " p
+                 LEFT JOIN
+                    categories c
+                        ON p.category_id = c.id
+                WHERE
+                    p.id = ?
+                LIMIT
+                    0,1";
+        
+        //przygotowanie zapytania
+        $stmt = $this->conn->prepare($query);
+
+        $stmt->bindParam(1, $this->id);
+
+        $stmt->execute();
+
+        //szukany wiersz
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        $this->name = $row['name'];
+        $this->price = $row['price'];
+        $this->description = $row['description'];
+        $this->categoryId = $row['category_id'];
+        $this->categoryName = $row['category_name'];
     }
 }
 ?>
