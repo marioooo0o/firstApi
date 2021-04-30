@@ -103,5 +103,39 @@ class Product
         $this->categoryId = $row['category_id'];
         $this->categoryName = $row['category_name'];
     }
+    function update()
+    {
+        $query = "UPDATE
+                    " . $this->table_name . "
+                SET 
+                    name = :name,
+                    price = :price,
+                    description = :description,
+                    category_id = :categoryId
+                WHERE
+                    id = :id";
+
+        //przygotowanie zapytania
+        $stmt = $this->conn->prepare($query);
+
+        $this->name=htmlspecialchars(strip_tags($this->name));
+        $this->price=htmlspecialchars(strip_tags($this->price));
+        $this->description=htmlspecialchars(strip_tags($this->description));
+        $this->categoryId=htmlspecialchars(strip_tags($this->categoryId));
+        $this->id=htmlspecialchars(strip_tags($this->id));
+
+        $stmt->bindParam(':name', $this->name);
+        $stmt->bindParam(':price', $this->price);
+        $stmt->bindParam(':description', $this->description);
+        $stmt->bindParam(':category_id', $this->categoryId);
+        $stmt->bindParam(':id', $this->id);
+
+        if($stmt->execute())
+        {
+            return true;
+        }
+        //możliwe że do zmiany
+        else false;
+    }
 }
 ?>
